@@ -23,3 +23,31 @@ def buscar_cep(cep):
     except Exception as e:
         print(f"Erro de conexão: {e}")
         return None
+
+    def exibir_endereco(dados):
+        """Formata os dados do JSON para uma exibição amigável no terminal."""
+    print("\n" + "="*30)
+    print("📍 ENDEREÇO ENCONTRADO")
+    print("="*30)
+    print(f"Rua: {dados.get('logradouro', 'Não informado')}")
+    print(f"Bairro: {dados.get('bairro', 'Não informado')}")
+    print(f"Cidade: {dados.get('localidade')} - {dados.get('uf')}")
+    print(f"DDD: {dados.get('ddd')}")
+    print("="*30 + "\n")
+
+def menu():
+    while True:
+        print("\n--- Buscador de CEP ---")
+        cep_input = input("Digite o CEP para buscar (ou 'sair' para encerrar): ")
+        
+        if cep_input.lower() == 'sair':
+            print("Encerrando o sistema...")
+            break
+            
+        dados_endereco = buscar_cep(cep_input)
+        
+        if dados_endereco:
+            exibir_endereco(dados_endereco)
+
+if __name__ == "__main__":
+    menu()

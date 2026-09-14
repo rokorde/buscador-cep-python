@@ -1,22 +1,25 @@
 import requests
 
 def buscar_cep(cep):
-    """Faz a requisição para a API do ViaCEP e retorna os dados brutos."""
+    # Remove traços ou espaços que o usuário possa ter digitado
+    cep = cep.replace("-", "").replace(" ", "")
+    
+    if len(cep) != 8 or not cep.isdigit():
+        print("Erro: O CEP deve conter exatamente 8 números.")
+        return None
+
     url = f"https://viacep.com.br/ws/{cep}/json/"
     
     try:
         response = requests.get(url)
-        if response.status_code == 200:
-            dados = response.json()
-            return dados
-        else:
-            print("Erro ao acessar a base de dados do ViaCEP.")
+        dados = response.json()
+        
+        # A API do ViaCEP retorna um JSON com a chave "erro": true quando o CEP não existe
+        if "erro" in dados:
+            print("Erro: CEP não encontrado na base de dados.")
             return None
+            
+        return dados
     except Exception as e:
         print(f"Erro de conexão: {e}")
         return None
-
-if __name__ == "__main__":
-    # Teste inicial
-    resultado = buscar_cep("01001000")
-    print(resultado)

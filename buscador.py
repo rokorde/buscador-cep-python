@@ -1,7 +1,8 @@
 import requests
+import json
+import os
 
 def buscar_cep(cep):
-    # Remove traços ou espaços que o usuário possa ter digitado
     cep = cep.replace("-", "").replace(" ", "")
     
     if len(cep) != 8 or not cep.isdigit():
@@ -14,7 +15,6 @@ def buscar_cep(cep):
         response = requests.get(url)
         dados = response.json()
         
-        # A API do ViaCEP retorna um JSON com a chave "erro": true quando o CEP não existe
         if "erro" in dados:
             print("Erro: CEP não encontrado na base de dados.")
             return None
@@ -24,8 +24,23 @@ def buscar_cep(cep):
         print(f"Erro de conexão: {e}")
         return None
 
-    def exibir_endereco(dados):
-        """Formata os dados do JSON para uma exibição amigável no terminal."""
+def salvar_historico(dados):
+    arquivo_historico = "historico_buscas.json"
+    historico = []
+    
+    if os.path.exists(arquivo_historico):
+        with open(arquivo_historico, 'r', encoding='utf-8') as f:
+            try:
+                historico = json.load(f)
+            except json.JSONDecodeError:
+                historico = []
+                
+    historico.append(dados)
+    
+    with open(arquivo_historico, 'w', encoding='utf-8') as f:
+        json.dump(historico, f, ensure_ascii=False, indent=4)
+
+def exibir_endereco(dados):
     print("\n" + "="*30)
     print("📍 ENDEREÇO ENCONTRADO")
     print("="*30)
@@ -48,6 +63,8 @@ def menu():
         
         if dados_endereco:
             exibir_endereco(dados_endereco)
+            salvar_historico(dados_endereco)
+            print("[✓] Busca salva no histórico.")
 
 if __name__ == "__main__":
     menu()
